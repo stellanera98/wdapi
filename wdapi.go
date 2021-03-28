@@ -43,14 +43,14 @@ type Primarch struct {
 }
 
 // NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion)
-func NewWDAPI(url, version, secret, id, defaultApikey string) *WDAPI {
+func NewWDAPI(url, version, secret, id, defaultkey string) *WDAPI {
 	if url == "" {
 		url = BaseURL
 	}
 	if version == "" {
 		version = APIVersion
 	}
-	ret := &WDAPI{BaseURL: url, Version: version, appSecret: secret, ClientID: id, client: new(http.Client), defaultApikey: defaultApikey}
+	ret := &WDAPI{BaseURL: url, Version: version, appSecret: secret, ClientID: id, client: new(http.Client), defaultApikey: defaultkey}
 	return ret
 }
 
@@ -72,6 +72,10 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 }
 
 func (w WDAPI) setAuthentication(req *http.Request, key string) {
+	if key == "" {
+		key = w.defaultApikey
+	}
+
 	now := strconv.FormatInt(time.Now().Unix(), 10)
 	s := w.appSecret + ":" + key + ":" + now
 	h := sha256.New()
