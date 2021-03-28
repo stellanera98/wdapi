@@ -73,8 +73,7 @@ type Player struct {
 	Level      int    `json:"level"`
 }
 
-// ​/atlas​/teams​/metadata
-func (w WDAPI) TeamsMetadata(kingdomID int, realmName, teamnames []string) (*TeamsMetadata, error) {
+func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string) (*TeamsMetadata, error) {
 	teams := ""
 	for _, v := range teamnames {
 		teams += fmt.Sprintf("\"%s\",", v)
@@ -102,7 +101,6 @@ type TeamKills struct {
 	TotalKills int   `json:"total_kills"`
 }
 
-// ​/atlas​/teams​/monthly_kill_count
 func (w WDAPI) MonthlyKillCount(teamnames []string) (*MonthlyKills, error) {
 	teams := ""
 	for _, v := range teamnames {
