@@ -3,13 +3,11 @@ package wdapi
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 )
 
 type CastlesMacro struct {
-	Error     string            `json:"error"`
-	Errorcode int               `json:"error_code"`
-	Castles   map[string]Castle `json:"castle"`
+	Timestamp Epoch             `json:"update_ts"`
+	Castles   map[string]Castle `json:"castles"`
 }
 
 type Castle struct {
@@ -19,13 +17,10 @@ type Castle struct {
 }
 
 func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, error) {
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/atlas/castles/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/castles/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, w.defaultApikey)
 	ret := CastlesMacro{}
 	err = w.sendRequest(req, &ret)

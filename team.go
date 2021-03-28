@@ -3,11 +3,10 @@ package wdapi
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 )
 
 type Contribution struct {
-	TS        Epoch   `json:"ts"`
+	Timestamp Epoch   `json:"ts"`
 	Entries   []Entry `json:"entries"`
 	Error     string  `json:"error"`
 	ErrorCode int     `json:"error_code"`
@@ -26,13 +25,10 @@ type Details struct {
 }
 
 func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/team/contribution", w.BaseURL, w.Version))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/contribution", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, apikey)
 	ret := Contribution{}
 	err = w.sendRequest(req, &ret)
@@ -55,13 +51,10 @@ type TC struct {
 }
 
 func (w WDAPI) TroopCount(apikey string) (*TroopCount, error) {
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/atlas/team/troop_count", w.BaseURL, w.Version))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/troop_count", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, apikey)
 	ret := TroopCount{}
 	err = w.sendRequest(req, &ret)
@@ -72,11 +65,11 @@ func (w WDAPI) TroopCount(apikey string) (*TroopCount, error) {
 }
 
 type Battles struct {
-	Cursor    string `json:"cursor"`
-	Reports   Report `json:"reports"`
-	More      bool   `json:"more"`
-	Error     string `json:"error"`
-	ErrorCode int    `json:"error_code"`
+	Cursor    string   `json:"cursor"`
+	Reports   []Report `json:"reports"`
+	More      bool     `json:"more"`
+	Error     string   `json:"error"`
+	ErrorCode int      `json:"error_code"`
 }
 
 type Report struct {
@@ -84,11 +77,11 @@ type Report struct {
 	Attacker         BattlePrim `json:"attacker"`
 	PlaceID          PlaceID    `json:"place_id"`
 	Timestamp        Epoch      `json:"ts"`
-	PercentDestroyed float32    `json:"percent_destroyed"`
+	PercentDestroyed float64    `json:"percent_destroyed"`
 }
 
 type BattlePrim struct {
-	GloryWon int      `json:"xp_won"`
+	GloryWon float64  `json:"xp_won"`
 	Name     string   `json:"name"`
 	Level    int      `json:"level"`
 	Troops   Ships    `json:"ships"`
@@ -102,13 +95,14 @@ type Ships struct {
 }
 
 func (w WDAPI) Battles(apikey string, cursor string) (*Battles, error) {
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/atlas/team/battles?cursor=%s", w.BaseURL, w.Version, cursor))
+	url := fmt.Sprintf("%s/%s/atlas/team/battles?cursor=%s", w.BaseURL, w.Version, cursor)
+	if cursor == "" {
+		url = fmt.Sprintf("%s/%s/atlas/team/battles", w.BaseURL, w.Version)
+	}
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, apikey)
 	ret := Battles{}
 	err = w.sendRequest(req, &ret)

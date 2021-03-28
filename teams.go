@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -39,13 +38,10 @@ type Activity struct {
 }
 
 func (w WDAPI) TeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro, error) {
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/atlas/teams/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/teams/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, w.defaultApikey)
 	ret := TeamsMacro{}
 	err = w.sendRequest(req, &ret)
@@ -53,12 +49,6 @@ func (w WDAPI) TeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro,
 		return nil, err
 	}
 	return &ret, nil
-}
-
-type TeamsMetadata struct {
-	Teams     map[string]TeamMetadata
-	Error     string `json:"error"`
-	ErrorCode int    `json:"error_code"`
 }
 
 type TeamMetadata struct {
@@ -73,23 +63,23 @@ type Player struct {
 	Level      int    `json:"level"`
 }
 
-func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string) (*TeamsMetadata, error) {
+func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string) (map[string]TeamMetadata, error) {
 	teams := ""
 	for _, v := range teamnames {
 		teams += fmt.Sprintf("\"%s\",", v)
 	}
-	body := strings.NewReader(fmt.Sprintf("{\"teams\":[\"%s\"],\"k_id\": %d,\"realm_name\": \"%s\"}", teams[:len(teams)-1], kingdomID, realmName))
+	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s],\"k_id\": %d,\"realm_name\": \"%s\"}", teams[:len(teams)-1], kingdomID, realmName))
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/atlas/teams/metadata", w.BaseURL, w.Version), body)
 	if err != nil {
 		return nil, err
 	}
 	w.setAuthentication(req, w.defaultApikey)
-	ret := TeamsMetadata{}
+	ret := make(map[string]TeamMetadata)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
 		return nil, err
 	}
-	return &ret, nil
+	return ret, nil
 }
 
 type MonthlyKills struct {
@@ -106,8 +96,8 @@ func (w WDAPI) MonthlyKillCount(teamnames []string) (*MonthlyKills, error) {
 	for _, v := range teamnames {
 		teams += fmt.Sprintf("\"%s\",", v)
 	}
-	body := strings.NewReader(fmt.Sprintf("{\"teams\":[\"%s\"]", teams[:len(teams)-1]))
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/atlas/teams/metadata/macro", w.BaseURL, w.Version), body)
+	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s]}", teams[:len(teams)-1]))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/atlas/teams/monthly_kill_count", w.BaseURL, w.Version), body)
 	if err != nil {
 		return nil, err
 	}

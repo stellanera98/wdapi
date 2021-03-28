@@ -3,12 +3,7 @@ package wdapi
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 )
-
-type CastleInfos struct {
-	Castles map[string]CastleInfo `json:"castles"`
-}
 
 type CastleInfo struct {
 	Fleets          map[string]Primarch `json:"fleets"`
@@ -93,23 +88,20 @@ type Buff struct {
 	TS     Epoch `json:"ts"`
 }
 
-func (w WDAPI) CastleInfo(castleIDs []string) (*CastleInfos, error) {
+func (w WDAPI) CastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
 	cids := ""
 	for _, v := range castleIDs {
 		cids += fmt.Sprintf("\"%s\",", v)
 	}
-	req := new(http.Request)
-	req.Method = "GET"
-	url, err := url.Parse(fmt.Sprintf("%s/%s/castle_info?cont_ids=[%s]", w.BaseURL, w.Version, cids[:len(cids)-1]))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/castle_info?cont_ids=[%s]", w.BaseURL, w.Version, cids[:len(cids)-1]), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL = url
 	w.setAuthentication(req, w.defaultApikey)
-	ret := CastleInfos{}
+	ret := make(map[string]CastleInfo)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
 		return nil, err
 	}
-	return &ret, nil
+	return ret, nil
 }
