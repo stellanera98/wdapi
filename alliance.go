@@ -13,7 +13,6 @@ type Alliances struct {
 }
 
 func (w WDAPI) Alliances() (*Alliances, error) {
-	fmt.Printf("%s/%s/atlas/alliance/teams\n", w.BaseURL, w.Version)
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/alliance/teams", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err

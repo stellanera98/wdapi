@@ -76,7 +76,6 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
 	err = json.Unmarshal(out, &res)
 	if err != nil {
 		return err
