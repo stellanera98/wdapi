@@ -64,11 +64,11 @@ type Player struct {
 }
 
 func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string) (map[string]TeamMetadata, error) {
-	teams := ""
+	teams := strings.Builder{}
 	for _, v := range teamnames {
-		teams += fmt.Sprintf("\"%s\",", v)
+		teams.WriteString(fmt.Sprintf("\"%s\",", v))
 	}
-	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s],\"k_id\": %d,\"realm_name\": \"%s\"}", teams[:len(teams)-1], kingdomID, realmName))
+	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s],\"k_id\": %d,\"realm_name\": \"%s\"}", strings.TrimSuffix(teams.String(), ","), kingdomID, realmName))
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/atlas/teams/metadata", w.BaseURL, w.Version), body)
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ type TeamKills struct {
 }
 
 func (w WDAPI) MonthlyKillCount(teamnames []string) (*MonthlyKills, error) {
-	teams := ""
+	teams := strings.Builder{}
 	for _, v := range teamnames {
-		teams += fmt.Sprintf("\"%s\",", v)
+		teams.WriteString(fmt.Sprintf("\"%s\",", v))
 	}
-	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s]}", teams[:len(teams)-1]))
+	body := strings.NewReader(fmt.Sprintf("{\"teams\":[%s]}", strings.TrimSuffix(teams.String(), ",")))
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/atlas/teams/monthly_kill_count", w.BaseURL, w.Version), body)
 	if err != nil {
 		return nil, err

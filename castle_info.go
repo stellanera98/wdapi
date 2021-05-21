@@ -6,17 +6,17 @@ import (
 )
 
 type CastleInfo struct {
-	Fleets          map[string]Primarch `json:"fleets"`
-	PlaceID         PlaceID             `json:"place_id"`
-	LastBattle      Epoch               `json:"last_battle_ts"`
-	Infrastructure  Infra               `json:"infra"`
-	LastUnlockedTS  Epoch               `json:"last_unlocked_ts"`
-	OwnerTeam       string              `json:"owner_team"`
-	CustomName      string              `json:"custom_name"`
-	Level           int                 `json:"level"`
-	OwnedSinceEpoch Epoch               `json:"owned_since_epoch"`
-	OwnerAlliance   string              `json:"owner_alliance"`
-	LastRenamedTS   Epoch               `json:"last_renamed_ts"`
+	Fleets          map[string]Prim `json:"fleets"`
+	PlaceID         PlaceID         `json:"place_id"`
+	LastBattle      Epoch           `json:"last_battle_ts"`
+	Infrastructure  Infra           `json:"infra"`
+	LastUnlockedTS  Epoch           `json:"last_unlocked_ts"`
+	OwnerTeam       string          `json:"owner_team"`
+	CustomName      string          `json:"custom_name"`
+	Level           int             `json:"level"`
+	OwnedSinceEpoch Epoch           `json:"owned_since_epoch"`
+	OwnerAlliance   string          `json:"owner_alliance"`
+	LastRenamedTS   Epoch           `json:"last_renamed_ts"`
 }
 
 type Infra struct {
@@ -89,11 +89,11 @@ type Buff struct {
 }
 
 func (w WDAPI) CastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
-	cids := ""
+	cids := strings.Builder{}
 	for _, v := range castleIDs {
-		cids += fmt.Sprintf("\"%s\",", v)
+		cids.WriteString(fmt.Sprintf("\"%s\",", v))
 	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/castle_info?cont_ids=[%s]", w.BaseURL, w.Version, cids[:len(cids)-1]), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/castle_info?cont_ids=[%s]", w.BaseURL, w.Version, strings.TrimSuffix(cids.String(), ",")), nil)
 	if err != nil {
 		return nil, err
 	}
