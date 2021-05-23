@@ -3,6 +3,7 @@ package wdapi
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type CastleInfo struct {
