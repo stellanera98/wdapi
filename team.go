@@ -18,10 +18,10 @@ type Entry struct {
 }
 
 type Details struct {
-	MonthlyGold    int `json:"monthly_gold"`
-	MonthlyMats    int `json:"monthly_mats"`
-	MonthlyTroops  int `json:"monthly_ships_killed"`
-	LifetimeTroops int `json:"lifetime_ships_killed"`
+	MonthlyGold    float64 `json:"monthly_gold"`
+	MonthlyMats    float64 `json:"monthly_mats"`
+	MonthlyTroops  float64 `json:"monthly_ships_killed"`
+	LifetimeTroops float64 `json:"lifetime_ships_killed"`
 }
 
 func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
