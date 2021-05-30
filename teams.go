@@ -82,16 +82,12 @@ func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string
 	return ret, nil
 }
 
-type MonthlyKills struct {
-	ReqTeams map[string]TeamKills
-}
-
 type TeamKills struct {
 	Timestamp  Epoch `json:"ts"`
 	TotalKills int   `json:"total_kills"`
 }
 
-func (w WDAPI) MonthlyKillCount(teamnames []string) (*MonthlyKills, error) {
+func (w WDAPI) MonthlyKillCount(teamnames []string) (map[string]TeamKills, error) {
 	teams := strings.Builder{}
 	for _, v := range teamnames {
 		teams.WriteString(fmt.Sprintf("\"%s\",", v))
@@ -102,10 +98,10 @@ func (w WDAPI) MonthlyKillCount(teamnames []string) (*MonthlyKills, error) {
 		return nil, err
 	}
 	w.setAuthentication(req, w.defaultApikey)
-	ret := MonthlyKills{}
+	ret := make(map[string]TeamKills)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
 		return nil, err
 	}
-	return &ret, nil
+	return ret, nil
 }
