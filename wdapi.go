@@ -27,6 +27,10 @@ type WDAPI struct {
 
 type Epoch float64
 
+func (e Epoch) Int() int {
+	return int(e)
+}
+
 type Coords struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
