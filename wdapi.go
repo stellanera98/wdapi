@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -82,7 +83,7 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 	}
 	err = json.Unmarshal(out, &res)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %s", err, string(out))
 	}
 	return nil
 }
@@ -99,4 +100,22 @@ func (w WDAPI) setAuthentication(req *http.Request, key string) {
 	req.Header.Set("X-WarDragons-Signature", signature)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
+}
+
+func (w WDAPI) Plain(method, endpoint string, body io.Reader, apikey string) ([]byte, error) {
+	req, err := http.NewRequest(method, endpoint, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	w.setAuthentication(req, apikey)
+	r, err := w.HTTPClient.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	r.Close = true
+	out, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+	return out, nil
 }
