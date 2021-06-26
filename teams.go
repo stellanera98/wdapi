@@ -56,7 +56,7 @@ type TeamMetadata struct {
 	Alliance string   `json:"alliance"`
 	Roster   []Player `json:"roster"`
 	Passages []string `json:"free_passages"`
-	Error    string   `json:"error", omitempty`
+	Error    string   `json:"error,omitempty"`
 }
 
 type Player struct {
@@ -86,8 +86,8 @@ func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string
 type TeamKills struct {
 	Timestamp  Epoch  `json:"ts"`
 	TotalKills int    `json:"total_kills"`
-	ErrorCode  int    `json:"error_code", omitempty`
-	Error      string `json:error, omitempty"`
+	ErrorCode  int    `json:"error_code,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 func (w WDAPI) MonthlyKillCount(teamnames []string) (map[string]TeamKills, error) {
