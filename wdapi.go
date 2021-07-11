@@ -17,6 +17,17 @@ const (
 	APIVersion1 = "api/v1"
 )
 
+var (
+	b  = "Bronze"
+	s1 = "Silver 1"
+	s2 = "Silver 2"
+
+	rusher    = "Trapper"
+	taunter   = "Taunter"
+	destroyer = "Destroyer"
+	sieger    = "Sieger"
+)
+
 type WDAPI struct {
 	BaseURL       string
 	Version       string
@@ -26,10 +37,29 @@ type WDAPI struct {
 	HTTPClient    *http.Client
 }
 
+type APITime interface {
+	Time() time.Time
+	String() string
+}
+
 type Epoch float64
 
-func (e Epoch) Int() int {
-	return int(e)
+type PGTS float64
+
+func (p PGTS) Time() time.Time {
+	return time.Unix(int64(p/1000), 0)
+}
+
+func (p PGTS) String() string {
+	return fmt.Sprintf("%s ago", time.Since(time.Unix(int64(p/1000), 0)).Truncate(time.Second))
+}
+
+func (e Epoch) Time() time.Time {
+	return time.Unix(int64(e), 0)
+}
+
+func (e Epoch) String() string {
+	return fmt.Sprintf("%s ago", time.Since(time.Unix(int64(e), 0)).Truncate(time.Second))
 }
 
 type Coords struct {
@@ -50,6 +80,44 @@ func (p PlaceID) String() string {
 type Primarch struct {
 	Type  string `json:"dtype"`
 	Level int    `json:"level"`
+}
+
+func (p Primarch) String() string {
+	lvl := fmt.Sprintf("LVL %d", p.Level)
+	var t string
+	switch p.Type {
+	case "garrison":
+		t = "Fort"
+	case "fighter":
+		t = "Fighter"
+	case "rusher":
+		t = fmt.Sprintf("%s %s", b, rusher)
+	case "rusher2":
+		t = fmt.Sprintf("%s %s", s1, rusher)
+	case "rusher3":
+		t = fmt.Sprintf("%s %s", s2, rusher)
+	case "taunter":
+		t = fmt.Sprintf("%s %s", b, taunter)
+	case "taunter2":
+		t = fmt.Sprintf("%s %s", s1, taunter)
+	case "taunter3":
+		t = fmt.Sprintf("%s %s", s2, taunter)
+	case "destroyer":
+		t = fmt.Sprintf("%s %s", b, destroyer)
+	case "destroyer2":
+		t = fmt.Sprintf("%s %s", s1, destroyer)
+	case "destroyer3":
+		t = fmt.Sprintf("%s %s", s2, destroyer)
+	case "sieger":
+		t = fmt.Sprintf("%s %s", b, sieger)
+	case "sieger2":
+		t = fmt.Sprintf("%s %s", s1, sieger)
+	case "sieger3":
+		t = fmt.Sprintf("%s %s", s2, sieger)
+	default:
+		t = fmt.Sprintf("Nope: %s", p.Type)
+	}
+	return fmt.Sprintf("%s %s", lvl, t)
 }
 
 // NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)
@@ -83,7 +151,7 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 	}
 	err = json.Unmarshal(out, &res)
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, string(out))
+		return fmt.Errorf("\n\n%w: %s\nthis an error", err, string(out))
 	}
 	return nil
 }

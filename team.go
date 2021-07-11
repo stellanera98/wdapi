@@ -76,7 +76,7 @@ type Report struct {
 	Defender         BattlePrim `json:"defender"`
 	Attacker         BattlePrim `json:"attacker"`
 	PlaceID          PlaceID    `json:"place_id"`
-	Timestamp        Epoch      `json:"ts"`
+	Timestamp        PGTS       `json:"ts"`
 	PercentDestroyed float64    `json:"percent_destroyed"`
 }
 
