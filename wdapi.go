@@ -21,6 +21,8 @@ var (
 	b  = "Bronze"
 	s1 = "Silver 1"
 	s2 = "Silver 2"
+	g1 = "Gold 1"
+	g2 = "Gold 2"
 
 	rusher    = "Trapper"
 	taunter   = "Taunter"
@@ -96,24 +98,44 @@ func (p Primarch) String() string {
 		t = fmt.Sprintf("%s %s", s1, rusher)
 	case "rusher3":
 		t = fmt.Sprintf("%s %s", s2, rusher)
+	case "rusher4":
+		t = fmt.Sprintf("%s %s", g1, rusher)
+	case "rusher5":
+		t = fmt.Sprintf("%s %s", g2, rusher)
+
 	case "taunter":
 		t = fmt.Sprintf("%s %s", b, taunter)
 	case "taunter2":
 		t = fmt.Sprintf("%s %s", s1, taunter)
 	case "taunter3":
 		t = fmt.Sprintf("%s %s", s2, taunter)
+	case "taunter4":
+		t = fmt.Sprintf("%s %s", g1, taunter)
+	case "taunter5":
+		t = fmt.Sprintf("%s %s", g2, taunter)
+
 	case "destroyer":
 		t = fmt.Sprintf("%s %s", b, destroyer)
 	case "destroyer2":
 		t = fmt.Sprintf("%s %s", s1, destroyer)
 	case "destroyer3":
 		t = fmt.Sprintf("%s %s", s2, destroyer)
+	case "destroyer4":
+		t = fmt.Sprintf("%s %s", g1, destroyer)
+	case "destroyer5":
+		t = fmt.Sprintf("%s %s", g2, destroyer)
+
 	case "sieger":
 		t = fmt.Sprintf("%s %s", b, sieger)
 	case "sieger2":
 		t = fmt.Sprintf("%s %s", s1, sieger)
 	case "sieger3":
 		t = fmt.Sprintf("%s %s", s2, sieger)
+	case "sieger4":
+		t = fmt.Sprintf("%s %s", g1, sieger)
+	case "sieger5":
+		t = fmt.Sprintf("%s %s", g2, sieger)
+
 	default:
 		t = fmt.Sprintf("Nope: %s", p.Type)
 	}
