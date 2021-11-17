@@ -30,7 +30,7 @@ func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, err
 
 	corr := make(map[string]Castle)
 	for i, v := range ret.Castles {
-		corr[fmt.Sprintf("%v-%s", kingdomID, i)] = v
+		corr[EnsureKRIDX(i, kingdomID)] = v
 	}
 
 	ret.Castles = corr

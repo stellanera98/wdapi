@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -75,8 +76,19 @@ type PlaceID struct {
 	RegionID  string `json:"region_id"`
 }
 
+// String() is synonymous to KRIDX()
 func (p PlaceID) String() string {
 	return fmt.Sprintf("%d-%s-%d", p.KingdomID, p.RegionID, p.ContIDX)
+}
+
+// KRIDX returns the ID as {kingdom}-{region}-{index}
+func (p PlaceID) KRIDX() string {
+	return p.String()
+}
+
+// RIDX returns the ID as {region}-{index}
+func (p PlaceID) RIDX() string {
+	return fmt.Sprintf("%s-%d", p.RegionID, p.ContIDX)
 }
 
 type Primarch struct {
@@ -140,6 +152,30 @@ func (p Primarch) String() string {
 		t = fmt.Sprintf("Nope: %s", p.Type)
 	}
 	return fmt.Sprintf("%s %s", lvl, t)
+}
+
+// EnsureKRIDX ensures that the ID is properly prefixed with the KID.
+// It does that by checking for the prefix "{kingdomID}-" adding it if it isnt there
+func EnsureKRIDX(id string, kingdomID int) string {
+	pref := fmt.Sprintf("%v-", kingdomID)
+	if strings.HasPrefix(id, pref) {
+		return id
+	}
+	return pref + id
+}
+
+// EnsureRIDX
+func EnsureRIDX(id string) (string, error) {
+	res := strings.Split(id, "-")
+	if len(res) == 2 {
+		// 2 parts should mean its fine
+		return id, nil
+	}
+	if len(res) != 3 {
+		// there arent enough or too many dashes (-) in this id
+		return id, fmt.Errorf("%v dashes found. Expected 2 or 3", len(res))
+	}
+	return res[1] + "-" + res[2], nil
 }
 
 // NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)

@@ -104,5 +104,9 @@ func (w WDAPI) CastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ret, nil
+	corr := make(map[string]CastleInfo)
+	for _, v := range ret {
+		corr[v.PlaceID.KRIDX()] = v
+	}
+	return corr, nil
 }
