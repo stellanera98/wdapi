@@ -27,5 +27,13 @@ func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, err
 	if err != nil {
 		return nil, err
 	}
+
+	corr := make(map[string]Castle)
+	for i, v := range ret.Castles {
+		corr[fmt.Sprintf("%v-%s", kingdomID, i)] = v
+	}
+
+	ret.Castles = corr
+
 	return &ret, nil
 }
