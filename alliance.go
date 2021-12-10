@@ -7,8 +7,6 @@ import (
 
 type Alliances struct {
 	Timestamp Epoch                 `json:"timestamp"`
-	Error     string                `json:"error"`
-	Errorcode int                   `json:"error_code"`
 	Alliances []map[string][]string `json:"alliances"`
 }
 

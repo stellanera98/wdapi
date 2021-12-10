@@ -24,7 +24,7 @@ type Details struct {
 	LifetimeTroops float64 `json:"lifetime_ships_killed"`
 }
 
-func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
+func (w WDAPI) Contribution(apikey string) ([]Entry, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/contribution", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
@@ -35,12 +35,14 @@ func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ret, nil
+
+	if ret.Error != "" || ret.ErrorCode != 0 {
+		return nil, fmt.Errorf("error (%v): %s", ret.ErrorCode, ret.Error)
+	}
+	return ret.Entries, nil
 }
 
 type TroopCount struct {
-	Error      string        `json:"error"`
-	ErrorCode  int           `json:"error_code"`
 	Timestamp  Epoch         `json:"timestamp"`
 	TroopCount map[string]TC `json:"troop_count"`
 }
@@ -61,15 +63,14 @@ func (w WDAPI) TroopCount(apikey string) (*TroopCount, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &ret, nil
 }
 
 type Battles struct {
-	Cursor    string   `json:"cursor"`
-	Reports   []Report `json:"reports"`
-	More      bool     `json:"more"`
-	Error     string   `json:"error"`
-	ErrorCode int      `json:"error_code"`
+	Cursor  string   `json:"cursor"`
+	Reports []Report `json:"reports"`
+	More    bool     `json:"more"`
 }
 
 type Report struct {

@@ -10,8 +10,6 @@ import (
 type TeamsMacro struct {
 	Timestamp Epoch                `json:"update_ts"`
 	Teams     map[string]TeamMacro `json:"teams"`
-	Error     string               `json:"error"`
-	ErrorCode int                  `json:"error_code"`
 }
 
 type TeamMacro struct {
@@ -48,6 +46,7 @@ func (w WDAPI) TeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro,
 	if err != nil {
 		return nil, err
 	}
+
 	return &ret, nil
 }
 
@@ -56,7 +55,6 @@ type TeamMetadata struct {
 	Alliance string   `json:"alliance"`
 	Roster   []Player `json:"roster"`
 	Passages []string `json:"free_passages"`
-	Error    string   `json:"error,omitempty"`
 }
 
 type Player struct {
@@ -78,16 +76,15 @@ func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string
 	ret := make(map[string]TeamMetadata)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
+		fmt.Println(req.Header)
 		return nil, err
 	}
 	return ret, nil
 }
 
 type TeamKills struct {
-	Timestamp  Epoch  `json:"ts"`
-	TotalKills int    `json:"total_kills"`
-	ErrorCode  int    `json:"error_code,omitempty"`
-	Error      string `json:"error,omitempty"`
+	Timestamp  Epoch `json:"ts"`
+	TotalKills int   `json:"total_kills"`
 }
 
 func (w WDAPI) MonthlyKillCount(teamnames []string) (map[string]TeamKills, error) {

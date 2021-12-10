@@ -32,7 +32,6 @@ func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, err
 	for i, v := range ret.Castles {
 		corr[EnsureKRIDX(i, kingdomID)] = v
 	}
-
 	ret.Castles = corr
 
 	return &ret, nil

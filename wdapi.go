@@ -70,6 +70,10 @@ type Coords struct {
 	Y float64 `json:"y"`
 }
 
+func (c Coords) String() string {
+	return fmt.Sprintf("X:%.1f Y:%.1v", c.X/40, c.Y/-40)
+}
+
 type PlaceID struct {
 	KingdomID int    `json:"k_id"`
 	ContIDX   int    `json:"cont_idx"`
@@ -178,6 +182,15 @@ func EnsureRIDX(id string) (string, error) {
 	return res[1] + "-" + res[2], nil
 }
 
+type PGError struct {
+	ErrorString string `json:"error"`
+	ErrorCode   int    `json:"error_code"`
+}
+
+func (p PGError) Error() string {
+	return fmt.Sprintf("error (%v): %s", p.ErrorCode, p.ErrorString)
+}
+
 // NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)
 func NewWDAPI(url, version, secret, id, defaultKey string) *WDAPI {
 	if url == "" {
@@ -209,7 +222,11 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 	}
 	err = json.Unmarshal(out, &res)
 	if err != nil {
-		return fmt.Errorf("\n\n%w: %s\nthis an error", err, string(out))
+		pgerr := &PGError{}
+		if json.Unmarshal(out, pgerr) != nil {
+			return pgerr
+		}
+		return fmt.Errorf("%w: %s", err, string(out))
 	}
 	return nil
 }
