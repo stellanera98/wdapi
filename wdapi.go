@@ -71,7 +71,7 @@ type Coords struct {
 }
 
 func (c Coords) String() string {
-	return fmt.Sprintf("X:%.1f Y:%.1v", c.X/40, c.Y/-40)
+	return fmt.Sprintf("X:%.1f Y:%.1f", c.X/40, c.Y/-40)
 }
 
 type PlaceID struct {
