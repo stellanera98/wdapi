@@ -21,7 +21,7 @@ func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, err
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := CastlesMacro{}
 	err = w.sendRequest(req, &ret)
 	if err != nil {

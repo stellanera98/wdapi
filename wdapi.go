@@ -1,12 +1,12 @@
 package wdapi
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -34,8 +34,8 @@ var (
 type WDAPI struct {
 	BaseURL       string
 	Version       string
-	appSecret     string
-	defaultApikey string
+	AppSecret     string
+	DefaultApikey string
 	ClientID      string
 	HTTPClient    *http.Client
 }
@@ -183,12 +183,14 @@ func EnsureRIDX(id string) (string, error) {
 }
 
 type PGError struct {
-	ErrorString string `json:"error"`
-	ErrorCode   int    `json:"error_code"`
+	ErrorString    string
+	Response       string
+	HTTPStatus     string
+	HTTPStatusCode int
 }
 
 func (p PGError) Error() string {
-	return fmt.Sprintf("error (%v): %s", p.ErrorCode, p.ErrorString)
+	return fmt.Sprintf("%s (%v)\nResponse: %s\nError: %s", p.HTTPStatus, p.HTTPStatusCode, p.Response, p.ErrorString)
 }
 
 // NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)
@@ -202,10 +204,10 @@ func NewWDAPI(url, version, secret, id, defaultKey string) *WDAPI {
 	return &WDAPI{
 		BaseURL:       url,
 		Version:       version,
-		appSecret:     secret,
+		AppSecret:     secret,
 		ClientID:      id,
 		HTTPClient:    &http.Client{},
-		defaultApikey: defaultKey,
+		DefaultApikey: defaultKey,
 	}
 
 }
@@ -216,26 +218,28 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 		return err
 	}
 	r.Close = true
-	out, err := ioutil.ReadAll(r.Body)
+	out, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
 	err = json.Unmarshal(out, &res)
 	if err != nil {
-		pgerr := &PGError{}
-		if json.Unmarshal(out, pgerr) != nil {
-			return pgerr
+		return PGError{
+			HTTPStatus:     r.Status,
+			HTTPStatusCode: r.StatusCode,
+			Response:       string(out),
+			ErrorString:    err.Error(),
 		}
-		return fmt.Errorf("%w: %s", err, string(out))
 	}
 	return nil
 }
 
 func (w WDAPI) setAuthentication(req *http.Request, key string) {
 	now := strconv.FormatInt(time.Now().Unix(), 10)
-	s := w.appSecret + ":" + key + ":" + now
+	s := bytes.Buffer{}
+	s.WriteString(w.AppSecret + ":" + key + ":" + now)
 	h := sha256.New()
-	h.Write([]byte(s))
+	h.Write(s.Bytes())
 	signature := hex.EncodeToString(h.Sum(nil))
 
 	req.Header.Set("X-WarDragons-APIKey", key)
@@ -256,7 +260,7 @@ func (w WDAPI) Plain(method, endpoint string, body io.Reader, apikey string) ([]
 		return []byte{}, err
 	}
 	r.Close = true
-	out, err := ioutil.ReadAll(r.Body)
+	out, err := io.ReadAll(r.Body)
 	if err != nil {
 		return []byte{}, err
 	}

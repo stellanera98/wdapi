@@ -15,7 +15,7 @@ func (w WDAPI) Alliances() (*Alliances, error) {
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := Alliances{}
 	err = w.sendRequest(req, &ret)
 	if err != nil {

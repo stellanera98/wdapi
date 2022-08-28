@@ -79,6 +79,10 @@ type Prim struct {
 	SummonEpoch        Epoch  `json:"summon_epoch"`
 }
 
+func (p Prim) String() string {
+	return Primarch{Type: p.PrimType, Level: p.Level}.String()
+}
+
 type Buffs struct {
 	Defend Buff `json:"defend"`
 	Attack Buff `json:"attack"`
@@ -98,7 +102,7 @@ func (w WDAPI) CastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := make(map[string]CastleInfo)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
