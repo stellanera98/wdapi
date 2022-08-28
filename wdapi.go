@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -219,7 +218,7 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 		return err
 	}
 	r.Close = true
-	out, err := ioutil.ReadAll(r.Body)
+	out, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
@@ -261,7 +260,7 @@ func (w WDAPI) Plain(method, endpoint string, body io.Reader, apikey string) ([]
 		return []byte{}, err
 	}
 	r.Close = true
-	out, err := ioutil.ReadAll(r.Body)
+	out, err := io.ReadAll(r.Body)
 	if err != nil {
 		return []byte{}, err
 	}

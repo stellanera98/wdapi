@@ -57,16 +57,18 @@ type Profile struct {
 	// DP this is off as well but in the other direction
 	// TotalAP just sum of "top 3 dragons"
 	// Those below have been excluded because pg sometimes sends floats as strings and that made me waste like 3 hours of my time
-	// DefensiveWinRate seems to be currently unused
-	//DefenseWinRate float64 `json:"defense_win_%"`
-	// AttackWinRate seems to be currently unused
-	//AttackWinRate       float64  `json:"attack_win_%"`
-	// NumBoosts seems to be currently unused
-	//NumBoosts      int      `json:"num_boosts"`
-	// Hardware why the fuck PG
-	//Hardware HW     `json:"hw"`
-	// TeamTitle what even is this???
-	//TeamTitle GuildTitle `json:"guild_title"`
+	/*
+		// DefensiveWinRate seems to be currently unused
+		DefenseWinRate float64 `json:"defense_win_%"`
+		 AttackWinRate seems to be currently unused
+		AttackWinRate       float64  `json:"attack_win_%"`
+		// NumBoosts seems to be currently unused
+		NumBoosts      int      `json:"num_boosts"`
+		// Hardware why the fuck PG
+		Hardware HW     `json:"hw"`
+		// TeamTitle what even is this???
+		TeamTitle GuildTitle `json:"guild_title"`
+	*/
 }
 
 type Elos struct {
