@@ -8,8 +8,6 @@ import (
 type Contribution struct {
 	Timestamp Epoch   `json:"ts"`
 	Entries   []Entry `json:"entries"`
-	Error     string  `json:"error"`
-	ErrorCode int     `json:"error_code"`
 }
 
 type Entry struct {
@@ -24,7 +22,7 @@ type Details struct {
 	LifetimeTroops float64 `json:"lifetime_ships_killed"`
 }
 
-func (w WDAPI) Contribution(apikey string) ([]Entry, error) {
+func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/contribution", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
@@ -36,10 +34,7 @@ func (w WDAPI) Contribution(apikey string) ([]Entry, error) {
 		return nil, err
 	}
 
-	if ret.Error != "" || ret.ErrorCode != 0 {
-		return nil, fmt.Errorf("error (%v): %s", ret.ErrorCode, ret.Error)
-	}
-	return ret.Entries, nil
+	return &ret, nil
 }
 
 type TroopCount struct {

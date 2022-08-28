@@ -40,7 +40,7 @@ func (w WDAPI) TeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro,
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := TeamsMacro{}
 	err = w.sendRequest(req, &ret)
 	if err != nil {
@@ -72,11 +72,10 @@ func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := make(map[string]TeamMetadata)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
-		fmt.Println(req.Header)
 		return nil, err
 	}
 	return ret, nil
@@ -97,7 +96,7 @@ func (w WDAPI) MonthlyKillCount(teamnames []string) (map[string]TeamKills, error
 	if err != nil {
 		return nil, err
 	}
-	w.setAuthentication(req, w.defaultApikey)
+	w.setAuthentication(req, w.DefaultApikey)
 	ret := make(map[string]TeamKills)
 	err = w.sendRequest(req, &ret)
 	if err != nil {
