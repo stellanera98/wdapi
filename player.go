@@ -32,10 +32,8 @@ func (w WDAPI) EventScore(apikey string) (*[]AtlasEvent, error) {
 }
 
 type Profile struct {
-	Elos                Elos     `json:"elos"`
 	Timestamps          Epochs   `json:"epochs"`
 	Trophies            Trophies `json:"trophies"`
-	Battle              Battle   `json:"battle"`
 	XP                  int      `json:"xp"`
 	PreviousGuildLeague string   `json:"previous_guild_league"`
 	LifetimeFlames      int      `json:"lifetime_war_stars"`
@@ -56,19 +54,18 @@ type Profile struct {
 	// PGID should not be here at all
 	// DP this is off as well but in the other direction
 	// TotalAP just sum of "top 3 dragons"
-	// Those below have been excluded because pg sometimes sends floats as strings and that made me waste like 3 hours of my time
-	/*
-		// DefensiveWinRate seems to be currently unused
-		DefenseWinRate float64 `json:"defense_win_%"`
-		 AttackWinRate seems to be currently unused
-		AttackWinRate       float64  `json:"attack_win_%"`
-		// NumBoosts seems to be currently unused
-		NumBoosts      int      `json:"num_boosts"`
-		// Hardware why the fuck PG
-		Hardware HW     `json:"hw"`
-		// TeamTitle what even is this???
-		TeamTitle GuildTitle `json:"guild_title"`
-	*/
+	// Hardware is weird and TeamTitle is usually empty
+	Hardware  HW         `json:"hw"`
+	TeamTitle GuildTitle `json:"guild_title"`
+	// Those below dont appear to be used for anything anymore
+	// Older accounts have some of these sometimes
+	// also sometimes the win rates are strings and sometimes float64s
+	// which is why they are here as interface{}
+	DefenseWinRate interface{} `json:"defense_win_%"`
+	AttackWinRate  interface{} `json:"attack_win_%"`
+	NumBoosts      interface{} `json:"num_boosts"`
+	Elos           Elos        `json:"elos"`
+	Battle         Battle      `json:"battle"`
 }
 
 type Elos struct {
@@ -105,6 +102,7 @@ type Dragon struct {
 	ID string `json:"id"`
 }
 
+// Unused
 type HW struct {
 	IsHighEndDevice bool `json:"is_high_end_device"`
 }
