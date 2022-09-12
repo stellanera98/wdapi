@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,19 +19,6 @@ const (
 	APIVersion1 = "api/v1"
 )
 
-var (
-	b  = "Bronze"
-	s1 = "Silver 1"
-	s2 = "Silver 2"
-	g1 = "Gold 1"
-	g2 = "Gold 2"
-
-	rusher    = "Trapper"
-	taunter   = "Taunter"
-	destroyer = "Destroyer"
-	sieger    = "Sieger"
-)
-
 type WDAPI struct {
 	BaseURL       string
 	Version       string
@@ -38,6 +26,7 @@ type WDAPI struct {
 	DefaultApikey string
 	ClientID      string
 	HTTPClient    *http.Client
+	Verbose bool
 }
 
 type APITime interface {
@@ -87,7 +76,7 @@ func (p PlaceID) String() string {
 
 // KRIDX returns the ID as {kingdom}-{region}-{index}
 func (p PlaceID) KRIDX() string {
-	return p.String()
+	return fmt.Sprintf("%d-%s-%d", p.KingdomID, p.RegionID, p.ContIDX)
 }
 
 // RIDX returns the ID as {region}-{index}
@@ -100,62 +89,33 @@ type Primarch struct {
 	Level int    `json:"level"`
 }
 
+var (
+    primtiers = []string{"Bronze", "Silver 1", "Silver 2", "Gold 1", "Gold 2"}
+    primtypes = map[string]string{
+        "rusher": "Trapper",
+        "taunter": "Taunter",
+        "destroyer":"Destroyer",
+        "sieger": "Sieger",
+    }
+)
+
 func (p Primarch) String() string {
-	lvl := fmt.Sprintf("LVL %d", p.Level)
-	var t string
-	switch p.Type {
-	case "garrison":
-		t = "Fort"
-	case "fighter":
-		t = "Fighter"
-	case "rusher":
-		t = fmt.Sprintf("%s %s", b, rusher)
-	case "rusher2":
-		t = fmt.Sprintf("%s %s", s1, rusher)
-	case "rusher3":
-		t = fmt.Sprintf("%s %s", s2, rusher)
-	case "rusher4":
-		t = fmt.Sprintf("%s %s", g1, rusher)
-	case "rusher5":
-		t = fmt.Sprintf("%s %s", g2, rusher)
-
-	case "taunter":
-		t = fmt.Sprintf("%s %s", b, taunter)
-	case "taunter2":
-		t = fmt.Sprintf("%s %s", s1, taunter)
-	case "taunter3":
-		t = fmt.Sprintf("%s %s", s2, taunter)
-	case "taunter4":
-		t = fmt.Sprintf("%s %s", g1, taunter)
-	case "taunter5":
-		t = fmt.Sprintf("%s %s", g2, taunter)
-
-	case "destroyer":
-		t = fmt.Sprintf("%s %s", b, destroyer)
-	case "destroyer2":
-		t = fmt.Sprintf("%s %s", s1, destroyer)
-	case "destroyer3":
-		t = fmt.Sprintf("%s %s", s2, destroyer)
-	case "destroyer4":
-		t = fmt.Sprintf("%s %s", g1, destroyer)
-	case "destroyer5":
-		t = fmt.Sprintf("%s %s", g2, destroyer)
-
-	case "sieger":
-		t = fmt.Sprintf("%s %s", b, sieger)
-	case "sieger2":
-		t = fmt.Sprintf("%s %s", s1, sieger)
-	case "sieger3":
-		t = fmt.Sprintf("%s %s", s2, sieger)
-	case "sieger4":
-		t = fmt.Sprintf("%s %s", g1, sieger)
-	case "sieger5":
-		t = fmt.Sprintf("%s %s", g2, sieger)
-
-	default:
-		t = fmt.Sprintf("Nope: %s", p.Type)
-	}
-	return fmt.Sprintf("%s %s", lvl, t)
+    if p.Type == "garrison" {
+        return fmt.Sprintf("Fort level %d", p.Level)
+    }
+    lastidx := len(p.Type)-1
+    tier, err := strconv.Atoi(string(p.Type[lastidx]))
+    if err != nil {
+        tier = 1
+        lastidx++
+    }
+    if len(primtiers) < tier {
+        return fmt.Sprintf("Unknown: %s", p.Type)
+    }
+    if _, ok := primtypes[p.Type[:lastidx]]; !ok {
+        return fmt.Sprintf("Unknown: %s", p.Type)
+    }
+    return fmt.Sprintf("LVL %d %s %s", p.Level, primtiers[tier-1], primtypes[p.Type[:lastidx]])
 }
 
 // EnsureKRIDX ensures that the ID is properly prefixed with the KID.
@@ -165,21 +125,15 @@ func EnsureKRIDX(id string, kingdomID int) string {
 	if strings.HasPrefix(id, pref) {
 		return id
 	}
-	return pref + id
+	return fmt.Sprintf("%s%s", pref, id)
 }
 
 // EnsureRIDX
-func EnsureRIDX(id string) (string, error) {
-	res := strings.Split(id, "-")
-	if len(res) == 2 {
-		// 2 parts should mean its fine
-		return id, nil
-	}
-	if len(res) != 3 {
-		// there arent enough or too many dashes (-) in this id
-		return id, fmt.Errorf("%v dashes found. Expected 2 or 3", len(res))
-	}
-	return res[1] + "-" + res[2], nil
+func EnsureRIDX(id string) string {
+    if strings.HasPrefix(id, "A") {
+        return id
+    }
+    return id[2:]
 }
 
 type PGError struct {
@@ -193,8 +147,8 @@ func (p PGError) Error() string {
 	return fmt.Sprintf("%s (%v)\nResponse: %s\nError: %s", p.HTTPStatus, p.HTTPStatusCode, p.Response, p.ErrorString)
 }
 
-// NewWDAPI url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)
-func NewWDAPI(url, version, secret, id, defaultKey string) *WDAPI {
+// New url and version can be omitted and will be replaced by the default values (wdapi.BaseURL, wdapi.APIVersion1)
+func New(url, version, secret, id, defaultKey string) *WDAPI {
 	if url == "" {
 		url = BaseURL
 	}
@@ -208,6 +162,7 @@ func NewWDAPI(url, version, secret, id, defaultKey string) *WDAPI {
 		ClientID:      id,
 		HTTPClient:    &http.Client{},
 		DefaultApikey: defaultKey,
+		Verbose: false,
 	}
 
 }
@@ -222,6 +177,12 @@ func (w WDAPI) sendRequest(req *http.Request, res interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	if w.Verbose {
+		log.Printf("%s %s\n", req.Method, req.URL.String())
+		log.Println(string(out))
+	}
+
 	err = json.Unmarshal(out, &res)
 	if err != nil {
 		return PGError{
