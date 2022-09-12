@@ -16,7 +16,7 @@ type Castle struct {
 	Level     int    `json:"level"`
 }
 
-func (w WDAPI) CastlesMacro(kingdomID int, realmName string) (*CastlesMacro, error) {
+func (w WDAPI) GetCastlesMacro(kingdomID int, realmName string) (*CastlesMacro, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/castles/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName), nil)
 	if err != nil {
 		return nil, err

@@ -35,7 +35,7 @@ type Activity struct {
 	Label string  `json:"label"`
 }
 
-func (w WDAPI) TeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro, error) {
+func (w WDAPI) GetTeamsMetadataMacro(kingdomID int, realmName string) (*TeamsMacro, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/teams/metadata/macro?k_id=%d&realm_name=%s", w.BaseURL, w.Version, kingdomID, realmName), nil)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ type Player struct {
 	Level      int    `json:"level"`
 }
 
-func (w WDAPI) TeamsMetadata(kingdomID int, realmName string, teamnames []string) (map[string]TeamMetadata, error) {
+func (w WDAPI) GetTeamsMetadata(kingdomID int, realmName string, teamnames []string) (map[string]TeamMetadata, error) {
 	teams := strings.Builder{}
 	for _, v := range teamnames {
 		teams.WriteString(fmt.Sprintf("\"%s\",", v))
@@ -86,7 +86,7 @@ type TeamKills struct {
 	TotalKills int   `json:"total_kills"`
 }
 
-func (w WDAPI) MonthlyKillCount(teamnames []string) (map[string]TeamKills, error) {
+func (w WDAPI) GetMonthlyKillCount(teamnames []string) (map[string]TeamKills, error) {
 	teams := strings.Builder{}
 	for _, v := range teamnames {
 		teams.WriteString(fmt.Sprintf("\"%s\",", v))

@@ -17,7 +17,7 @@ type EventDetails struct {
 	Type       string `json:"type"`
 }
 
-func (w WDAPI) EventScore(apikey string) (*[]AtlasEvent, error) {
+func (w WDAPI) GetEventScore(apikey string) (*[]AtlasEvent, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/player/event/score", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ type HW struct {
 // GuildTitle seems to be currently unused
 type GuildTitle interface{}
 
-func (w WDAPI) Profile(apikey string) (*Profile, error) {
+func (w WDAPI) GetProfile(apikey string) (*Profile, error) {
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s/%s/player/public/my_profile?apikey=%s`, w.BaseURL, w.Version, apikey), nil)
 	if err != nil {
 		return nil, err

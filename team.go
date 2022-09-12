@@ -22,7 +22,7 @@ type Details struct {
 	LifetimeTroops float64 `json:"lifetime_ships_killed"`
 }
 
-func (w WDAPI) Contribution(apikey string) (*Contribution, error) {
+func (w WDAPI) GetContribution(apikey string) (*Contribution, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/contribution", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ type TC struct {
 	Members map[string]int `json:"members"`
 }
 
-func (w WDAPI) TroopCount(apikey string) (*TroopCount, error) {
+func (w WDAPI) GetTroopCount(apikey string) (*TroopCount, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/team/troop_count", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ type Ships struct {
 	Lost    int `json:"lost"`
 }
 
-func (w WDAPI) Battles(apikey string, cursor string) (*Battles, error) {
+func (w WDAPI) GetBattles(apikey string, cursor string) (*Battles, error) {
 	url := fmt.Sprintf("%s/%s/atlas/team/battles?cursor=%s", w.BaseURL, w.Version, cursor)
 	if cursor == "" {
 		url = fmt.Sprintf("%s/%s/atlas/team/battles", w.BaseURL, w.Version)

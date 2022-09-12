@@ -10,7 +10,7 @@ type Alliances struct {
 	Alliances []map[string][]string `json:"alliances"`
 }
 
-func (w WDAPI) Alliances() (*Alliances, error) {
+func (w WDAPI) GetAlliances() (*Alliances, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/atlas/alliance/teams", w.BaseURL, w.Version), nil)
 	if err != nil {
 		return nil, err

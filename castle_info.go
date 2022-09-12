@@ -93,7 +93,7 @@ type Buff struct {
 	TS     Epoch `json:"ts"`
 }
 
-func (w WDAPI) CastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
+func (w WDAPI) GetCastleInfo(castleIDs []string) (map[string]CastleInfo, error) {
 	cids := strings.Builder{}
 	for _, v := range castleIDs {
 		cids.WriteString(fmt.Sprintf("\"%s\",", v))

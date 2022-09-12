@@ -210,7 +210,7 @@ func (w WDAPI) setAuthentication(req *http.Request, key string) {
 	req.Header.Set("Content-Type", "application/json")
 }
 
-func (w WDAPI) Plain(method, endpoint string, body io.Reader, apikey string) ([]byte, error) {
+func (w WDAPI) GetPlain(method, endpoint string, body io.Reader, apikey string) ([]byte, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		return []byte{}, err
